@@ -2,7 +2,6 @@ name: Deploy to GitHub Pages
 
 on:
   # Trigger the workflow every time you push to the `main` branch
-  # Using a different branch name? Replace `main` with your branch’s name
   push:
     branches: [ main ]
   # Allows you to run this workflow manually from the Actions tab on GitHub.
@@ -20,12 +19,27 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v4
-      - name: Install, build, and upload your site
-        uses: withastro/action@v0
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
-            # path: . # The root location of your Astro project inside the repository. (optional)
-            node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 16. (optional)
-            # package-manager: yarn # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
+          node-version: 20 # Use Node.js v20
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Build the React project
+      - name: Build the React app
+        run: npm run build
+
+      # Upload the build folder as an artifact
+      - name: Upload build folder
+        run: |
+          echo "Uploading build directory..."
+          ls -alh build
+          echo "::set-output name=BUILD_DIR::build"
 
   deploy:
     needs: build
@@ -34,6 +48,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      # Deploy the build folder to GitHub Pages
       - name: Deploy to GitHub Pages
-        id: deployment
         uses: actions/deploy-pages@v1
+        with:
+          build-folder: build
