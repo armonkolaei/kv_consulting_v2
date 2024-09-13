@@ -1,4 +1,4 @@
-name: Deploy App to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -28,6 +28,17 @@ jobs:
       - name: Build the React app
         run: |
           npm run build || { echo "Build failed"; exit 1; }
+
+      # Check the dist directory instead of build
+      - name: Check dist directory
+        run: |
+          if [ -d "dist" ]; then
+            echo "Dist directory exists."
+            ls -alh dist
+          else
+            echo "Dist directory does not exist."
+            exit 1
+          fi
 
   deploy:
     needs: build
