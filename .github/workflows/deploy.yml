@@ -29,18 +29,16 @@ jobs:
         run: |
           npm run build || { echo "Build failed"; exit 1; }
 
-      # Check and upload the dist directory as an artifact
-      - name: Upload dist folder as an artifact
+      # Check if the dist directory exists
+      - name: Check dist directory
         run: |
           if [ -d "dist" ]; then
-            echo "Uploading dist directory..."
-            tar -czf dist.tar.gz dist
-            echo "::set-output name=BUILD_DIR::dist"
+            echo "Dist directory exists."
+            ls -alh dist
           else
             echo "Dist directory does not exist."
             exit 1
           fi
-        continue-on-error: false
 
   deploy:
     needs: build
@@ -52,12 +50,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
-      # Download and extract the artifact from the previous job
-      - name: Download and extract the dist artifact
-        run: |
-          tar -xzf dist.tar.gz
-
-      # Deploy the extracted dist folder to GitHub Pages
+      # Deploy the dist folder to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
         with:
