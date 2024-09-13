@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-  
+
 permissions:
   contents: read
   pages: write
@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout your repository using git
+      - name: Checkout your repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -26,32 +26,18 @@ jobs:
         run: npm install
 
       - name: Build the React app
-        run: |
-          npm run build || { echo "Build failed"; exit 1; }
+        run: npm run build
 
-      # Check if the dist directory exists
-      - name: Check dist directory
-        run: |
-          if [ -d "dist" ]; then
-            echo "Dist directory exists."
-            ls -alh dist
-          else
-            echo "Dist directory does not exist."
-            exit 1
-          fi
+      - name: Upload the dist folder to GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: dist
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v4
-
-      # Deploy the dist folder to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
-        with:
-          build-folder: dist
