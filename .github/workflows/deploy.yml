@@ -29,17 +29,6 @@ jobs:
         run: |
           npm run build || { echo "Build failed"; exit 1; }
 
-      # Check the dist directory instead of build
-      - name: Check dist directory
-        run: |
-          if [ -d "dist" ]; then
-            echo "Dist directory exists."
-            ls -alh dist
-          else
-            echo "Dist directory does not exist."
-            exit 1
-          fi
-
   deploy:
     needs: build
     runs-on: ubuntu-latest
